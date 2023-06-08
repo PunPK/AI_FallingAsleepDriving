@@ -1,3 +1,4 @@
-pip install av==6.2.0
-pip install opencv-python
-pip install mediapipe
+av==6.2.0
+opencv-python
+mediapipe
+opencv-python
