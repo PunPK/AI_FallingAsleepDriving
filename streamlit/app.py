@@ -1,5 +1,4 @@
 import streamlit as st
-import av
 import mediapipe as mp
 import cv2 as cv
 import utils, math
