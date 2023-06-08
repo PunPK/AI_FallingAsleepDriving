@@ -1,6 +1,7 @@
 import streamlit as st
 import cv2
 import mediapipe as mp
+import numpy as np
 
 # Create a MediaPipe Hands instance
 mp_hands = mp.solutions.hands.Hands()
@@ -43,12 +44,6 @@ with mp_hands.Hands(
 
         # Display the processed frame
         annotated_image = frame_rgb.copy()
-        if results.multi_hand_landmarks:
-            for hand_landmarks in results.multi_hand_landmarks:
-                # Draw the hand landmarks on the annotated image
-                # ...
-
-        # Display the annotated image
         st.image(annotated_image, channels="RGB")
 
 # Release the video capture
