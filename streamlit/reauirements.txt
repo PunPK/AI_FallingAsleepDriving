@@ -1,1 +1,2 @@
 pip install av==6.2.0
+pip install mediapipe==0.10.1
