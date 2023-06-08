@@ -29,8 +29,8 @@ def conv_and_res(ni, nf): return nn.Sequential(conv2(ni, nf), ResBlock(nf))
 temp = pathlib.PosixPath
 pathlib.PosixPath = pathlib.WindowsPath
 
-#learn_inf_eye = load_learner('2eye_ModelsfromScratch.pkl')
-learn_inf_eye = load_learner('eye_data_resnet18_fastai.pkl')
+learn_inf_eye = load_learner('2eye_ModelsfromScratch.pkl')
+#learn_inf_eye = load_learner('eye_data_resnet18_fastai.pkl')
 #learn_inf_yawn = load_learner('yawn_data_resnet18_fastai.pkl')
 learn_inf_yawn = load_learner('yawn_ModelsfromScratch.pkl')
 
