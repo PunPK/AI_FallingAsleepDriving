@@ -30,8 +30,8 @@ temp = pathlib.PosixPath
 pathlib.PosixPath = pathlib.WindowsPath
 
 learn_inf_eye = load_learner('Model\Teye_ModelsfromScratch.pkl')
-#learn_inf_eye = load_learner('eye_data_resnet18_fastai.pkl')
-#learn_inf_yawn = load_learner('yawn_data_resnet18_fastai.pkl')
+#learn_inf_eye = load_learner('Model\eye_data_resnet18_fastai.pkl')
+#learn_inf_yawn = load_learner('Model\yawn_data_resnet18_fastai.pkl')
 learn_inf_yawn = load_learner('Model\yawn_ModelsfromScratch.pkl')
 
 # Variables 
