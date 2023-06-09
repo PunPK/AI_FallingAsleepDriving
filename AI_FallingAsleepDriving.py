@@ -108,14 +108,14 @@ def start_mode(camera) :
     for i in range(1, 61):
         time.sleep(1)
         print("---------------------------------------------------------------------")
-        print("Ai_sleepdiver : ")
+        print("AI_FallingAsleepDriving : ")
         print("1.) press the 'q' or 'Q' button to close the program")
         print("2.) press the 's' or 'S' button to start the program")
         print("Time:", i ,"S ... if Time >= 60 : Ai_sleepdiver will stop working")
         
         if i >= 60:
             print("-------------------------------------------")
-            print("------------close Ai_sleepdiver------------")
+            print("-------close AI_FallingAsleepDriving-------")
             print("-------------------------------------------")
             cv.destroyAllWindows()
             camera.release()
@@ -123,7 +123,7 @@ def start_mode(camera) :
 
         if keyboard.is_pressed('q') or keyboard.is_pressed('Q') or keyboard.is_pressed('ๆ') :
             print("-------------------------------------------")
-            print("------------close Ai_sleepdiver------------")
+            print("-------close AI_FallingAsleepDriving-------")
             print("-------------------------------------------")
             cv.destroyAllWindows()
             camera.release()
@@ -131,7 +131,7 @@ def start_mode(camera) :
 
         if keyboard.is_pressed('s') or keyboard.is_pressed('S') or keyboard.is_pressed('ห'):
             print("-------------------------------------------")
-            print("------------start Ai_sleepdiver------------")
+            print("-------start AI_FallingAsleepDriving-------")
             print("-------------------------------------------")
             break
 
@@ -478,7 +478,7 @@ with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidenc
             # Print the DataFrame
             print(df)
             print("-------------------------------------------")
-            print("------------close Ai_sleepdiver------------")
+            print("-------close AI_FallingAsleepDriving-------")
             print("-------------------------------------------")
             break
 
