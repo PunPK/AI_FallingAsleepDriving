@@ -52,7 +52,7 @@ RIGHT_EYE = [33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 
 
 map_face_mesh = mp.solutions.face_mesh
 # Camera object 
-video = cv.VideoCapture(0)
+video = cv2.VideoCapture(0)
 #video = cv2.VideoCapture("test.mp4") 
 
 # Landmark detection function 
@@ -322,6 +322,7 @@ with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidenc
     start_time_left = time.time()
     start_blink_time = time.time()
     start_yawn_time = time.time()
+    start_n = time.time()
     frame_count = 0          
     #Set_FRANE(video)
     #start_mode(video)
@@ -332,6 +333,9 @@ with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidenc
         ret, frame = video.read() # Get frame from camera
         if not ret:
             break # No more frames, break
+        n_current_time = time.time()
+        n_elapsed_time = n_current_time - start_n
+        minutes, seconds = divmod(n_elapsed_time, 60)
 
         # Resize frame
         frame = cv.resize(frame, None, fx=1.5, fy=1.5, interpolation=cv.INTER_CUBIC)
@@ -449,9 +453,11 @@ with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidenc
         fps = frame_counter / end_time
 
         frame = utils.textWithBackground(frame, f'FPS: {round(fps,1)}', FONTS, 1.0, (30, 50), bgOpacity=0.9, textThickness=2)
+        frame = utils.textWithBackground(frame, "Elapsed Time: {:02d}:{:02d}".format(int(minutes), int(seconds)), FONTS, 0.5, (10, 495), bgOpacity=0.45, textThickness=1)
         frame = utils.textWithBackground(frame, f"Press the 'q' or 'Q' button to close the program", FONTS, 0.5, (10, 525), bgOpacity=0.45, textThickness=1)
         
-        cv.imshow('Ai_Sleepdiver', frame)
+        #cv.imshow('Ai_Sleepdiver', frame)
+        cv.imshow('ss',frame)
 
         key = cv.waitKey(2)
         if key == ord('q') or key == ord('Q') :
