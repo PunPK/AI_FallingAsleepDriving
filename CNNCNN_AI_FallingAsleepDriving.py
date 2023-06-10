@@ -352,7 +352,7 @@ with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidenc
     start_n = time.time()
     frame_count = 0          
     #Set_FRANE(video)
-    start_mode(video)
+    #start_mode(video)
 
     # Starting video loop
     while True:
@@ -379,7 +379,7 @@ with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidenc
             reEYE,leEYE = detecteye(frame, mesh_coords, RIGHT_EYE, LEFT_EYE)
             re_yawn = detectYawn(frame, mesh_coords,LIPS)
             #detectFACE(frame, mesh_coords, FACE_OVAL)
-            if reEYE > 4 :
+            if reEYE > 4.7 :
                 re_right = "close eye"
                 reCEF_COUNTER += 1
             else:
@@ -388,7 +388,7 @@ with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidenc
                     reTOTAL_BLINKS += 1
                     reCEF_COUNTER = 0
 
-            if leEYE > 4 :
+            if leEYE > 4.7 :
                 leCEF_COUNTER += 1
                 re_left = "close eye"
             else:
@@ -437,11 +437,11 @@ with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidenc
                     close_eye_left_counter += 1
                     close_eye_left = 0 
 
-            if blink_right >= 1 :
+            if blink_right >= 2 :
                 blink_right_counter += 1
                 blink_right_counter_n += 1
                 blink_right = 0
-            if blink_left >= 1 :
+            if blink_left >= 2 :
                 blink_left_counter += 1
                 blink_left = 0
             
