@@ -35,11 +35,13 @@ pathlib.PosixPath = pathlib.WindowsPath
 learn_inf_eye = load_learner('Model\Teye_ModelsfromScratch.pkl')
 learn_inf_yawn = load_learner('Model\yawn_ModelsfromScratch.pkl')
 
-# Variables 
+# variables 
 frame_counter = 0
 CEF_COUNTER = 0
 TOTAL_BLINKS = 0
+# constants
 CLOSED_EYES_FRAME = 3
+
 FONTS = cv.FONT_HERSHEY_COMPLEX
 
 # Face bounder indices 
@@ -98,8 +100,8 @@ def landmarksDetection(img, results, draw=False):
     # Returning the list of tuples for each landmark 
     return mesh_coord
 
-# Euclidean distance 
-def euclideanDistance(point, point1):
+# Euclaidean distance 
+def euclaideanDistance(point, point1):
     x, y = point
     x1, y1 = point1
     distance = math.sqrt((x1 - x)**2 + (y1 - y)**2)
@@ -161,6 +163,7 @@ def detectFACE(img, landmarks, FACE):
     cv.rectangle(img, (FACE_x_min, FACE_y_min), (FACE_x_max, FACE_y_max), utils.GREEN, 2)
 
 def detecteye(img, landmarks, right_indices, left_indices):
+
     # Right eye
     # Horizontal line 
     rh_right = landmarks[right_indices[0]]
@@ -176,6 +179,16 @@ def detecteye(img, landmarks, right_indices, left_indices):
     # Vertical line 
     lv_top = landmarks[left_indices[12]]
     lv_bottom = landmarks[left_indices[4]]
+
+    rhDistance = euclaideanDistance(rh_right, rh_left)
+    rvDistance = euclaideanDistance(rv_top, rv_bottom)
+
+    lvDistance = euclaideanDistance(lv_top, lv_bottom)
+    lhDistance = euclaideanDistance(lh_right, lh_left)
+
+    reRatio = rhDistance/rvDistance
+    leRatio = lhDistance/lvDistance
+
 
     # Draw lines on eyes 
     # Right eye
@@ -216,7 +229,7 @@ def detecteye(img, landmarks, right_indices, left_indices):
             # Perform prediction on cropped eye regions
             re_right = learn_inf_eye.predict(eye_right_image)
             print("Eye right:", re_right)
-            re_right_m = re_right[0]
+            re_right_m = reRatio
         except (ValueError, PIL.Image.DecompressionBombError):
             # Handle the specific error and return None
             re_right_m = None
@@ -235,7 +248,7 @@ def detecteye(img, landmarks, right_indices, left_indices):
             # Perform prediction on cropped eye regions
             re_left = learn_inf_eye.predict(eye_left_image)
             print("Eye left:", re_left)
-            re_left_m = re_left[0]
+            re_left_m = leRatio
         except (ValueError, PIL.Image.DecompressionBombError):
             # Handle the specific error and return None
             re_left_m = None
@@ -308,6 +321,16 @@ danger = '0 : Alert'
 Sound = "OFF"
 n_i = 0
 show_txt = ""
+# variables 
+frame_counter = 0
+leCEF_COUNTER = 0
+leTOTAL_BLINKS = 0
+# constants
+leCLOSED_EYES_FRAME = 3
+reCEF_COUNTER = 0
+reTOTAL_BLINKS = 0
+# constants
+reCLOSED_EYES_FRAME = 3
 
 # Data list for storing results
 data = []
@@ -353,9 +376,27 @@ with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidenc
             # Eye and yawn detection
             #gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
             #detectEyes(frame, gray)
-            re_right,re_left = detecteye(frame, mesh_coords, RIGHT_EYE, LEFT_EYE)
+            reEYE,leEYE = detecteye(frame, mesh_coords, RIGHT_EYE, LEFT_EYE)
             re_yawn = detectYawn(frame, mesh_coords,LIPS)
             #detectFACE(frame, mesh_coords, FACE_OVAL)
+            if reEYE > 4 :
+                re_right = "close eye"
+                reCEF_COUNTER += 1
+            else:
+                re_right = "open eye"
+                if reCEF_COUNTER > reCLOSED_EYES_FRAME:
+                    reTOTAL_BLINKS += 1
+                    reCEF_COUNTER = 0
+
+            if leEYE > 4 :
+                leCEF_COUNTER += 1
+                re_left = "close eye"
+            else:
+                re_left = "open eye"
+                if leCEF_COUNTER > leCLOSED_EYES_FRAME:
+                    leTOTAL_BLINKS += 1
+                    leCEF_COUNTER = 0
+
             frame = utils.textWithBackground(frame, f'Eye right : {re_right}', FONTS, 1.0, (30, 100), bgOpacity=0.9, textThickness=2)
             frame = utils.textWithBackground(frame, f'Eye left  : {re_left}', FONTS, 1.0, (30, 150), bgOpacity=0.9, textThickness=2)
             frame = utils.textWithBackground(frame, f'Yawn : {re_yawn}', FONTS, 1.0, (30, 200), bgOpacity=0.9, textThickness=2)
@@ -396,11 +437,11 @@ with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidenc
                     close_eye_left_counter += 1
                     close_eye_left = 0 
 
-            if blink_right >= 2 :
+            if blink_right >= 1 :
                 blink_right_counter += 1
                 blink_right_counter_n += 1
                 blink_right = 0
-            if blink_left >= 2 :
+            if blink_left >= 1 :
                 blink_left_counter += 1
                 blink_left = 0
             
@@ -422,7 +463,7 @@ with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidenc
             if re_yawn == 'yawn':
                 yawn_counter += 1
             
-            if yawn_counter >= 6 :
+            if yawn_counter >= 10 :
                 re_yawn_counter += 1
                 re_yawn_counter_n += 1
                 yawn_counter = 0
