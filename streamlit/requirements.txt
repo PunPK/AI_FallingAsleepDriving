@@ -1,2 +1,8 @@
+fastbook
+progressbar2
+tqdm
+streamlit
+Shapely
+streamlit
 opencv-python
 mediapipe
