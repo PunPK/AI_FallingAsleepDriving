@@ -1,5 +1,5 @@
 import streamlit as st
-import cv
+import cv2
 import mediapipe as mp
 import numpy as np
 
