@@ -29,10 +29,10 @@ def conv_and_res(ni, nf): return nn.Sequential(conv2(ni, nf), ResBlock(nf))
 temp = pathlib.PosixPath
 pathlib.PosixPath = pathlib.WindowsPath
 
-learn_inf_eye = load_learner('Model\Teye_ModelsfromScratch.pkl')
-#learn_inf_eye = load_learner('Model\eye_data_resnet18_fastai.pkl')
-#learn_inf_yawn = load_learner('Model\yawn_data_resnet18_fastai.pkl')
-learn_inf_yawn = load_learner('Model\yawn_ModelsfromScratch.pkl')
+#learn_inf_eye = load_learner('Model\Teye_ModelsfromScratch.pkl')
+learn_inf_eye = load_learner('Model\eye_data_resnet18_fastai.pkl')
+learn_inf_yawn = load_learner('Model\yawn_data_resnet18_fastai.pkl')
+#learn_inf_yawn = load_learner('Model\yawn_ModelsfromScratch.pkl')
 
 # Variables 
 frame_counter = 0
@@ -121,7 +121,7 @@ def start_mode(camera) :
             camera.release()
             break
 
-        if keyboard.is_pressed('q') or keyboard.is_pressed('Q') or keyboard.is_pressed('ๆ') :
+        if keyboard.is_pressed('q') or keyboard.is_pressed('Q') :
             print("-------------------------------------------")
             print("-------close AI_FallingAsleepDriving-------")
             print("-------------------------------------------")
@@ -129,7 +129,7 @@ def start_mode(camera) :
             camera.release()
             break
 
-        if keyboard.is_pressed('s') or keyboard.is_pressed('S') or keyboard.is_pressed('ห'):
+        if keyboard.is_pressed('s') or keyboard.is_pressed('S') :
             print("-------------------------------------------")
             print("-------start AI_FallingAsleepDriving-------")
             print("-------------------------------------------")
@@ -325,7 +325,7 @@ with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidenc
     start_n = time.time()
     frame_count = 0          
     #Set_FRANE(video)
-    #start_mode(video)
+    start_mode(video)
 
     # Starting video loop
     while True:
@@ -379,14 +379,16 @@ with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidenc
             if close_eye_right >= 1 :
                 if re_right == 'open eye' :
                     close_eye_right = 0 
-                elif close_eye_right >= 10 :
+                elif close_eye_right >= 5 :
                     close_eye_right_counter += 1
+                    close_eye_right = 0 
 
             if close_eye_left >= 1 :
                 if re_left == 'open eye' :
                     close_eye_left = 0 
-                elif close_eye_left >= 10 :
+                elif close_eye_left >= 5 :
                     close_eye_left_counter += 1
+                    close_eye_left = 0 
 
             if blink_right >= 2 :
                 blink_right_counter += 1
@@ -400,10 +402,12 @@ with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidenc
             if blink_time <= 59 :
                 if blink_right_counter_n >= 30 :
                     blink_30_right += 1
+                    blink_right_counter_n = 0
                 if blink_left_counter_n >= 30 :
                     blink_30_left += 1
+                    blink_left_counter_n = 0
             elif blink_time >= 60 :
-                blink_time = time.time() - start_blink_time
+                blink_time = time.time() - start_blink_time - blink_time
                 blink_right_counter_n = 0
                 blink_left_counter_n = 0
 
@@ -421,43 +425,43 @@ with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidenc
             if yawn_time <= 59 :
                 if re_yawn_counter_n >= 3 :
                     yawn_30 += 1
+                    re_yawn_counter_n = 0
             elif yawn_time >= 60 :
-                blink_time = time.time() - start_yawn_time
+                yawn_time = time.time() - start_yawn_time - yawn_time
                 re_yawn_counter_n = 0
 
-            if blink_right_counter >= 5 or blink_left_counter >= 5 or re_yawn_counter == 6 or close_eye_right_counter >= 2 or close_eye_left_counter >= 2 or no_blink_right >= 4 or no_blink_left >= 4 or blink_30_left >= 4 or blink_30_right >= 4 or yawn_30 >= 4:
+            if re_yawn_counter == 6 or close_eye_right_counter >= 2 or close_eye_left_counter >= 2 or no_blink_right >= 4 or no_blink_left >= 4 or blink_30_left >= 4 or blink_30_right >= 4 or yawn_30 >= 4:
                 danger = '5 : Extremely Sleepy, fighting sleep'
-            elif blink_right_counter == 4 or blink_left_counter == 4 or re_yawn_counter == 5 or close_eye_right_counter == 1 or close_eye_left_counter == 1 or no_blink_right == 3 or no_blink_left == 3 or blink_30_left == 3 or blink_30_right == 3 or yawn_30 == 3:
+            elif re_yawn_counter == 5 or close_eye_right_counter == 1 or close_eye_left_counter == 1 or no_blink_right == 3 or no_blink_left == 3 or blink_30_left == 3 or blink_30_right == 3 or yawn_30 == 3:
                 danger = '4 : Sleepy, some effort to keep alert'
-            elif blink_right_counter == 3 or blink_left_counter == 3 or re_yawn_counter == 4 or no_blink_right == 2 or no_blink_left == 2 or blink_30_left >= 2 or blink_30_right == 2 or yawn_30 == 2:
+            elif re_yawn_counter == 4 or no_blink_right == 2 or no_blink_left == 2 or blink_30_left >= 2 or blink_30_right == 2 or yawn_30 == 2:
                 danger = '3 : Sleepy, but no difficulty remaining awake'
-            elif blink_right_counter == 2 or blink_left_counter == 2 or re_yawn_counter == 3 or no_blink_left == 1 or no_blink_left == 1 or blink_30_left == 1 or blink_30_right == 1 or yawn_30 == 1:
+            elif re_yawn_counter == 3 or no_blink_left == 1 or no_blink_left == 1 or blink_30_left == 1 or blink_30_right == 1 or yawn_30 == 1:
                 danger = '2 : Some signs of sleepiness'
-            elif blink_right_counter == 1 or blink_left_counter == 1 or re_yawn_counter == 2 :
+            elif re_yawn_counter == 2 :
                 danger = '1 : Rather Alert'
                 
-            frame = utils.textWithBackground(frame, f'Degree of danger :: {danger}', FONTS, 0.5, (500, 100), bgOpacity=0.45, textThickness=1)
-            frame = utils.textWithBackground(frame, f'Sum blink Eye right    : {blink_right_counter}', FONTS, 0.5, (650, 150), bgOpacity=0.45, textThickness=1)
-            frame = utils.textWithBackground(frame, f'Sum blink Eye left     : {blink_left_counter}', FONTS, 0.5, (650, 200), bgOpacity=0.45, textThickness=1)
-            frame = utils.textWithBackground(frame, f'Sum close Eye right    : {close_eye_right_counter}', FONTS, 0.5, (650, 250), bgOpacity=0.45, textThickness=1)
-            frame = utils.textWithBackground(frame, f'Sum close Eye left     : {close_eye_left_counter}', FONTS, 0.5, (650, 300), bgOpacity=0.45, textThickness=1)
-            frame = utils.textWithBackground(frame, f'Sum no blink Eye right : {no_blink_right}', FONTS, 0.5, (650, 350), bgOpacity=0.45, textThickness=1)
-            frame = utils.textWithBackground(frame, f'Sum no blink Eye left  : {no_blink_left}', FONTS, 0.5, (650, 400), bgOpacity=0.45, textThickness=1)
-            frame = utils.textWithBackground(frame, f'Sum 30 blink Eye right : {blink_30_right}', FONTS, 0.5, (650, 450), bgOpacity=0.45, textThickness=1)
-            frame = utils.textWithBackground(frame, f'Sum 30 blink Eye left  : {blink_30_left}', FONTS, 0.5, (650, 500), bgOpacity=0.45, textThickness=1)
-            frame = utils.textWithBackground(frame, f'Sum Yawn               : {re_yawn_counter}', FONTS, 0.5, (650, 550), bgOpacity=0.45, textThickness=1)
-            frame = utils.textWithBackground(frame, f'Sum 30 Yawn            : {yawn_30}', FONTS, 0.5, (650, 600), bgOpacity=0.45, textThickness=1)
+            frame = utils.textWithBackground(frame, f'Degree of danger :: {danger}', FONTS, 0.5, (500, 50), bgOpacity=0.45, textThickness=1)
+            frame = utils.textWithBackground(frame, f'Sum blink Eye right    : {blink_right_counter}', FONTS, 0.5, (650, 95), bgOpacity=0.45, textThickness=1)
+            frame = utils.textWithBackground(frame, f'Sum blink Eye left     : {blink_left_counter}', FONTS, 0.5, (650, 140), bgOpacity=0.45, textThickness=1)
+            frame = utils.textWithBackground(frame, f'Sum close Eye right    : {close_eye_right_counter}', FONTS, 0.5, (650, 185), bgOpacity=0.45, textThickness=1)
+            frame = utils.textWithBackground(frame, f'Sum close Eye left     : {close_eye_left_counter}', FONTS, 0.5, (650, 230), bgOpacity=0.45, textThickness=1)
+            frame = utils.textWithBackground(frame, f'Sum no blink Eye right : {no_blink_right}', FONTS, 0.5, (650, 275), bgOpacity=0.45, textThickness=1)
+            frame = utils.textWithBackground(frame, f'Sum no blink Eye left  : {no_blink_left}', FONTS, 0.5, (650, 320), bgOpacity=0.45, textThickness=1)
+            frame = utils.textWithBackground(frame, f'Sum 30 blink Eye right : {blink_30_right}', FONTS, 0.5, (650, 365), bgOpacity=0.45, textThickness=1)
+            frame = utils.textWithBackground(frame, f'Sum 30 blink Eye left  : {blink_30_left}', FONTS, 0.5, (650, 410), bgOpacity=0.45, textThickness=1)
+            frame = utils.textWithBackground(frame, f'Sum Yawn               : {re_yawn_counter}', FONTS, 0.5, (650, 455), bgOpacity=0.45, textThickness=1)
+            frame = utils.textWithBackground(frame, f'Sum 30 Yawn            : {yawn_30}', FONTS, 0.5, (650, 500), bgOpacity=0.45, textThickness=1)
 
         # Calculate frame per second (FPS)
         end_time = time.time() - start_time
-        fps = frame_counter / end_time
+        fps = (frame_counter / end_time)
 
-        frame = utils.textWithBackground(frame, f'FPS: {round(fps,1)}', FONTS, 1.0, (30, 50), bgOpacity=0.9, textThickness=2)
+        frame = utils.textWithBackground(frame, f'FPS : {round(fps,1)}', FONTS, 1.0, (30, 50), bgOpacity=0.9, textThickness=2)
         frame = utils.textWithBackground(frame, "Elapsed Time: {:02d}:{:02d}".format(int(minutes), int(seconds)), FONTS, 0.5, (10, 495), bgOpacity=0.45, textThickness=1)
         frame = utils.textWithBackground(frame, f"Press the 'q' or 'Q' button to close the program", FONTS, 0.5, (10, 525), bgOpacity=0.45, textThickness=1)
-        
-        #cv.imshow('Ai_Sleepdiver', frame)
-        cv.imshow('ss',frame)
+
+        cv.imshow('AI_FallingAsleepDriving',frame)
 
         key = cv.waitKey(2)
         if key == ord('q') or key == ord('Q') :
