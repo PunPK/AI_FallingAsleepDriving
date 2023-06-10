@@ -7,3 +7,10 @@
 	แล้วเมื่อ 3.20 มาอยู่ที่ 21.2+-1  แล้วขึ้นไป 22.2+-1 ใน 4.20  ไป 23 ใน 5 นาที เมื่อเลยไปก็ยังคง 23+-1 ไว้ต่อไป
 
 	blink_right_counter >= 5 or blink_left_counter >= 5 or 
+
+	                if n_i < 4 :
+                    Sound = "ON"
+                else:
+                    Sound = "OFF"
+                    n_i = -10
+                n_i += 1

@@ -13,6 +13,9 @@ from pathlib import Path
 from sklearn.metrics import precision_recall_fscore_support, accuracy_score, roc_auc_score
 import pathlib
 import PIL
+#voice
+import pyaudio
+from playsound import playsound
 
 def conv2(ni, nf): return ConvLayer(ni, nf, stride=2)
 
@@ -304,6 +307,9 @@ blink_30_right = 0
 blink_30_left = 0
 yawn_30 = 0
 danger = '0 : Alert'   
+Sound = "OFF"
+n_i = 0
+show_txt = ""
 
 # Data list for storing results
 data = []
@@ -432,6 +438,7 @@ with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidenc
 
             if re_yawn_counter == 6 or close_eye_right_counter >= 2 or close_eye_left_counter >= 2 or no_blink_right >= 4 or no_blink_left >= 4 or blink_30_left >= 4 or blink_30_right >= 4 or yawn_30 >= 4:
                 danger = '5 : Extremely Sleepy, fighting sleep'
+                frame = utils.textWithBackground(frame, f"You must park your car for a break.", FONTS, 1, (200, 300), bgOpacity=0.9, textThickness=2)
             elif re_yawn_counter == 5 or close_eye_right_counter == 1 or close_eye_left_counter == 1 or no_blink_right == 3 or no_blink_left == 3 or blink_30_left == 3 or blink_30_right == 3 or yawn_30 == 3:
                 danger = '4 : Sleepy, some effort to keep alert'
             elif re_yawn_counter == 4 or no_blink_right == 2 or no_blink_left == 2 or blink_30_left >= 2 or blink_30_right == 2 or yawn_30 == 2:
@@ -458,6 +465,7 @@ with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidenc
         fps = (frame_counter / end_time)
 
         frame = utils.textWithBackground(frame, f'FPS : {round(fps,1)}', FONTS, 1.0, (30, 50), bgOpacity=0.9, textThickness=2)
+        #frame = utils.textWithBackground(frame, f'Sound : {Sound}', FONTS, 1.0, (30, 250), bgOpacity=0.9, textThickness=2)
         frame = utils.textWithBackground(frame, "Elapsed Time: {:02d}:{:02d}".format(int(minutes), int(seconds)), FONTS, 0.5, (10, 495), bgOpacity=0.45, textThickness=1)
         frame = utils.textWithBackground(frame, f"Press the 'q' or 'Q' button to close the program", FONTS, 0.5, (10, 525), bgOpacity=0.45, textThickness=1)
 
