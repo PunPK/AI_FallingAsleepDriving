@@ -308,9 +308,9 @@ danger = '0 : Alert'
 # Data list for storing results
 data = []
 
-Blinks_right_start = 10
-Blinks_left_start = 10
-Yawn_start = 10
+Blinks_right_start = 20
+Blinks_left_start = 20
+Yawn_start = 15
 
 data.append({'Frame': frame_counter, 'Blinks_right': Blinks_right_start, 'Blinks_left': Blinks_left_start, 'Yawns': Yawn_start})
 
