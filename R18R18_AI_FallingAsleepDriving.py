@@ -365,15 +365,17 @@ with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidenc
             if re_right == 'open eye' :
                 elapsed_right_time = time.time() - start_time_right
                 if re_right == 'close eye':
-                    start_time_right = time.time()
+                    start_time_right_0 = time.time() 
                 elif elapsed_right_time >= 60 :
-                    no_blink_right += 1
+                    elapsed_right_time = time.time() - start_time_right - elapsed_right_time
+                    no_blink_right = 0
             if re_left == 'open eye' :
                 elapsed_left_time = time.time() - start_time_left
                 if re_left == 'close eye':
                     start_time_left = time.time()
                 elif elapsed_left_time >= 60 :
-                    no_blink_left += 1
+                    elapsed_left_time = time.time() - start_time_left - elapsed_left_time
+                    no_blink_left = 0
 
             if re_right == 'close eye' :
                 close_eye_right += 1
@@ -438,7 +440,7 @@ with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidenc
 
             if re_yawn_counter == 6 or close_eye_right_counter >= 2 or close_eye_left_counter >= 2 or no_blink_right >= 4 or no_blink_left >= 4 or blink_30_left >= 4 or blink_30_right >= 4 or yawn_30 >= 4:
                 danger = '5 : Extremely Sleepy, fighting sleep'
-                frame = utils.textWithBackground(frame, f"You must park your car for a break.", FONTS, 1, (200, 300), bgOpacity=0.9, textThickness=2)
+                #frame = utils.textWithBackground(frame, f"You must park your car for a break.", FONTS, 1, (200, 300), bgOpacity=0.9, textThickness=2)
             elif re_yawn_counter == 5 or close_eye_right_counter == 1 or close_eye_left_counter == 1 or no_blink_right == 3 or no_blink_left == 3 or blink_30_left == 3 or blink_30_right == 3 or yawn_30 == 3:
                 danger = '4 : Sleepy, some effort to keep alert'
             elif re_yawn_counter == 4 or no_blink_right == 2 or no_blink_left == 2 or blink_30_left >= 2 or blink_30_right == 2 or yawn_30 == 2:
@@ -453,8 +455,10 @@ with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidenc
             frame = utils.textWithBackground(frame, f'Sum blink Eye left     : {blink_left_counter}', FONTS, 0.5, (650, 140), bgOpacity=0.45, textThickness=1)
             frame = utils.textWithBackground(frame, f'Sum close Eye right    : {close_eye_right_counter}', FONTS, 0.5, (650, 185), bgOpacity=0.45, textThickness=1)
             frame = utils.textWithBackground(frame, f'Sum close Eye left     : {close_eye_left_counter}', FONTS, 0.5, (650, 230), bgOpacity=0.45, textThickness=1)
-            frame = utils.textWithBackground(frame, f'Sum no blink Eye right : {no_blink_right}', FONTS, 0.5, (650, 275), bgOpacity=0.45, textThickness=1)
-            frame = utils.textWithBackground(frame, f'Sum no blink Eye left  : {no_blink_left}', FONTS, 0.5, (650, 320), bgOpacity=0.45, textThickness=1)
+            #frame = utils.textWithBackground(frame, f'Sum no blink Eye right : {no_blink_right}', FONTS, 0.5, (650, 275), bgOpacity=0.45, textThickness=1)
+            #frame = utils.textWithBackground(frame, f'Sum no blink Eye left  : {no_blink_left}', FONTS, 0.5, (650, 320), bgOpacity=0.45, textThickness=1)
+            frame = utils.textWithBackground(frame, f'Sum no blink Eye right : 0', FONTS, 0.5, (650, 275), bgOpacity=0.45, textThickness=1)
+            frame = utils.textWithBackground(frame, f'Sum no blink Eye left  : 0', FONTS, 0.5, (650, 320), bgOpacity=0.45, textThickness=1)
             frame = utils.textWithBackground(frame, f'Sum 30 blink Eye right : {blink_30_right}', FONTS, 0.5, (650, 365), bgOpacity=0.45, textThickness=1)
             frame = utils.textWithBackground(frame, f'Sum 30 blink Eye left  : {blink_30_left}', FONTS, 0.5, (650, 410), bgOpacity=0.45, textThickness=1)
             frame = utils.textWithBackground(frame, f'Sum Yawn               : {re_yawn_counter}', FONTS, 0.5, (650, 455), bgOpacity=0.45, textThickness=1)
