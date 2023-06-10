@@ -1,59 +1,50 @@
 import streamlit as st
 import cv2
-from PIL import Image
+import mediapipe as mp
 import numpy as np
 
+# Create a MediaPipe Hands instance
+mp_hands = mp.solutions.hands.Hands()
 
-face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+# Use Streamlit to create a selectbox for choosing the video source
+video_source = st.selectbox(
+    "Select video source",
+    options=["Webcam", "Video File (.mp4)"]
+)
 
-rec=cv2.face.LBPHFaceRecognizer_create()
-rec.read("trainingData.yml")
-def detect_faces(our_image):
-    img = np.array(our_image.convert('RGB'))
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    # Detect faces
-    faces = face_cascade.detectMultiScale(gray, 1.1, 4)
-    # Draw rectangle around the faces
-    name='Unknown'
-    for (x, y, w, h) in faces:
-        # To draw a rectangle in a face
-        cv2.rectangle(img, (x, y), (x + w, y + h), (255, 255, 0), 2)
-        id, uncertainty = rec.predict(gray[y:y + h, x:x + w])
-        print(id, uncertainty)
+if video_source == "Webcam":
+    # Open the webcam
+    cap = cv2.VideoCapture(0)
+else:
+    # Use Streamlit to upload a video file
+    video_file = st.file_uploader("Upload a video file", type=["mp4"])
 
-        if (uncertainty< 53):
-            if (id == 1 or id == 3 or id == 5):
-                name = "Nachiketa"
-                cv2.putText(img, name, (x, y + h), cv2.FONT_HERSHEY_COMPLEX_SMALL, 2.0, (0, 0, 255))
-        else:
-            cv2.putText(img, 'Unknown', (x, y + h), cv2.FONT_HERSHEY_COMPLEX_SMALL, 2.0, (0, 0, 255))
+    if video_file is not None:
+        # Open the video file
+        file_bytes = video_file.read()
+        nparr = np.frombuffer(file_bytes, np.uint8)
+        cap = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
+# Read and process frames from the video
+with mp_hands.Hands(
+    static_image_mode=False,
+    max_num_hands=2,
+    min_detection_confidence=0.5
+) as hands:
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
 
-    return img
-def main():
-    """Face Recognition App"""
+        # Convert the BGR frame to RGB
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-    st.title("Streamlit Tutorial")
+        # Process the frame with MediaPipe Hands
+        results = hands.process(frame_rgb)
 
-    html_temp = """
-    <body style="background-color:red;">
-    <div style="background-color:teal ;padding:10px">
-    <h2 style="color:white;text-align:center;">Face Recognition WebApp</h2>
-    </div>
-    </body>
-    """
-    st.markdown(html_temp, unsafe_allow_html=True)
+        # Display the processed frame
+        annotated_image = frame_rgb.copy()
+        st.image(annotated_image, channels="RGB")
 
-    image_file = st.file_uploader("Upload Image", type=['jpg', 'png', 'jpeg'])
-    if image_file is not None:
-        our_image = Image.open(image_file)
-        st.text("Original Image")
-        st.image(our_image)
-
-    if st.button("Recognise"):
-        result_img= detect_faces(our_image)
-        st.image(result_img)
-
-
-if __name__ == '__main__':
-    main()
+# Release the video capture
+cap.release()
