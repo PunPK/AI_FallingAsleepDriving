@@ -259,19 +259,6 @@ class FaceProcessing(object):
                         )
                     with gr.Row():
                         gr.Text("Please use it in a well lit place. Because the model may guess wrong.")
-
-                with gr.TabItem("Eye/Yawn detection image/video"):
-                    with gr.Row():
-                        with gr.Column():
-                            mp_image_in = gr.Image(label="Image Input")
-                            mp_video_in = gr.Video(label="Video Input")
-                        with gr.Column():
-                            mp_apply_fm_action = gr.Button("Apply detection image")
-                            mp_apply_lm_action = gr.Button("Apply detection video")
-                            gr.Text("Please use it in a well lit place. Because the model may guess wrong.")
-                    with gr.Row():
-                        mp_fm_photo_out = gr.Image(label="Face detection Image Photo Output")
-                        mp_lm_video_out = gr.Video(label="Webcam Video")
             
             mp_photo_action.click(
                 self.mp_webcam_photo,
@@ -293,15 +280,6 @@ class FaceProcessing(object):
                 ]
             )
 
-            mp_apply_lm_action.click(
-                self.mp_webcam_video_detection,
-                [
-                    mp_video_in
-                ],
-                [
-                    mp_lm_video_out
-                ]
-            )
     
     def launch_ui(self):
         self.ui_obj.launch()
