@@ -3,19 +3,17 @@ import cv2 as cv2
 import mediapipe as mp
 import time
 import utils, math
-import numpy as np
-import keyboard
 import pandas as pd
 # Fast Ai
 from fastbook import *
-from glob import glob
-from pathlib import Path
-from sklearn.metrics import precision_recall_fscore_support, accuracy_score, roc_auc_score
 import pathlib
 import PIL
+from PIL import ImageTk
 #voice
 import pyaudio
 from playsound import playsound
+import tkinter as tk
+import tkinter.filedialog as filedialog
 
 def conv2(ni, nf): return ConvLayer(ni, nf, stride=2)
 
@@ -41,8 +39,13 @@ CEF_COUNTER = 0
 TOTAL_BLINKS = 0
 # constants
 CLOSED_EYES_FRAME = 3
+start = 0
+end = 0
+ch = 0
 
 FONTS = cv.FONT_HERSHEY_COMPLEX
+window = tk.Tk()
+window.title("AI_FallingAsleepDriving")
 
 # Face bounder indices 
 FACE_OVAL = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109]
@@ -54,9 +57,6 @@ LEFT_EYE = [362, 382, 381, 380, 374, 373, 390, 249, 263, 466, 388, 387, 386, 385
 RIGHT_EYE = [33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161, 246]  
 
 map_face_mesh = mp.solutions.face_mesh
-# Camera object 
-video = cv2.VideoCapture(0)
-#video = cv2.VideoCapture("test.mp4") 
 
 # Landmark detection function 
 def Set_FRANE(cap) :
@@ -107,36 +107,78 @@ def euclaideanDistance(point, point1):
     distance = math.sqrt((x1 - x)**2 + (y1 - y)**2)
     return distance
 
-def start_mode(camera) :
-    for i in range(1, 61):
-        time.sleep(1)
-        print("---------------------------------------------------------------------")
-        print("AI_FallingAsleepDriving : ")
-        print("1.) press the 'q' or 'Q' button to close the program")
-        print("2.) press the 's' or 'S' button to start the program")
-        print("Time:", i ,"S ... if Time >= 60 : Ai_sleepdiver will stop working")
-        
-        if i >= 60:
-            print("-------------------------------------------")
-            print("-------close AI_FallingAsleepDriving-------")
-            print("-------------------------------------------")
-            cv.destroyAllWindows()
-            camera.release()
-            break
+def select_input():
+    # สร้างหน้าต่างย่อยเพื่อให้ผู้ใช้เลือก Input
+    select_window = tk.Toplevel(window)
+    select_window.title("เลือก Input")
+    
+    # เพิ่มปุ่มเลือกวิดีโอ
+    video_button = tk.Button(select_window, text="เลือกวิดีโอ", command=select_video)
+    video_button.pack(pady=10)
 
-        if keyboard.is_pressed('q') or keyboard.is_pressed('Q') :
-            print("-------------------------------------------")
-            print("-------close AI_FallingAsleepDriving-------")
-            print("-------------------------------------------")
-            cv.destroyAllWindows()
-            camera.release()
-            break
+    # เพิ่มปุ่มเลือกกล้องเว็บแคม
+    webcam_button = tk.Button(select_window, text="เลือกกล้องเว็บแคม", command=start_webcam)
+    webcam_button.pack(pady=10)
 
-        if keyboard.is_pressed('s') or keyboard.is_pressed('S') :
-            print("-------------------------------------------")
-            print("-------start AI_FallingAsleepDriving-------")
-            print("-------------------------------------------")
-            break
+    if ch == 1 :
+        file_path = filedialog.askopenfilename(title="เลือกไฟล์วิดีโอ", filetypes=[("Video Files", "*.mp4")])
+        if file_path:
+            # ทำสิ่งที่ต้องการเมื่อได้รับไฟล์วิดีโอ
+            print("Got file video:", file_path)
+            # เรียกใช้ฟังก์ชันสำหรับประมวลผลวิดีโอ
+            video = cv2.VideoCapture(file_path)
+            select_window.destroy()
+            return video
+    if ch == 2 :
+        video = cv2.VideoCapture(0)
+        print("Start Webcam...")
+        # ส่งค่า video กลับไป
+        select_window.destroy()
+        return video
+
+def select_video():
+    ch = 1
+
+def start_webcam():
+    ch = 2
+
+    
+def open_program(event=None):
+    # ส่วนโค้ดที่ต้องการให้โปรแกรมเริ่มต้นเมื่อกดปุ่มเข้าสู่โปรแกรม
+    print("-------------------------------------------")
+    print("------------start Ai_sleepdiver------------")
+    print("-------------------------------------------")
+    video = select_input()
+    strat = 1
+    return video
+
+def exit_program(event=None):
+    # ส่วนโค้ดที่ต้องการเมื่อกดปุ่ม Exit
+    print("-------------------------------------------")
+    print("------------close Ai_sleepdiver------------")
+    print("-------------------------------------------")
+    # ทำลายหน้าต่าง GUI
+    window.destroy()
+    
+
+def start_mode() :
+    # เพิ่มรูปภาพหน้าแรก
+    image = Image.open("LOGO.jpg")  # ใส่ชื่อไฟล์รูปภาพที่คุณต้องการใช้
+    photo = ImageTk.PhotoImage(image)
+    label = tk.Label(window, image=photo)
+    label.pack()
+    # กำหนดขนาดหน้าต่าง GUI
+    window.geometry("800x600")
+    # เพิ่มปุ่มเข้าสู่โปรแกรม
+    button = tk.Button(window, text="เข้าสู่โปรแกรม", command=open_program)
+    button.pack()
+    exit_button = tk.Button(window, text="Exit", command=exit_program)
+    exit_button.pack()
+    if start == 1:
+        window.destroy()
+        return video
+    window.mainloop()
+    
 
 # FACE detection function 
 def detectFACE(img, landmarks, FACE):
@@ -344,6 +386,8 @@ data.append({'Frame': frame_counter, 'Blinks_right': Blinks_right_start, 'Blinks
 with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidence=0.5) as face_mesh:
     # Starting time
     # ตัวแปรสำหรับคำนวณ FPS
+   video = start_mode()
+   if start == 1 :
     start_time = time.time()
     start_time_right = time.time()
     start_time_left = time.time()
@@ -352,7 +396,7 @@ with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidenc
     start_n = time.time()
     frame_count = 0          
     #Set_FRANE(video)
-    #start_mode(video)
+    
 
     # Starting video loop
     while True:
@@ -538,4 +582,5 @@ with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidenc
             break
 
 cv.destroyAllWindows()
-video.release()
+if start == 1 :
+    video.release()
