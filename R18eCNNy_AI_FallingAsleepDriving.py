@@ -4,7 +4,6 @@ import mediapipe as mp
 import time
 import utils, math
 import numpy as np
-import keyboard
 import pandas as pd
 # Fast Ai
 from fastbook import *
@@ -105,37 +104,6 @@ def euclideanDistance(point, point1):
     distance = math.sqrt((x1 - x)**2 + (y1 - y)**2)
     return distance
 
-def start_mode(camera) :
-    for i in range(1, 61):
-        time.sleep(1)
-        print("---------------------------------------------------------------------")
-        print("AI_FallingAsleepDriving : ")
-        print("1.) press the 'q' or 'Q' button to close the program")
-        print("2.) press the 's' or 'S' button to start the program")
-        print("Time:", i ,"S ... if Time >= 60 : Ai_sleepdiver will stop working")
-        
-        if i >= 60:
-            print("-------------------------------------------")
-            print("-------close AI_FallingAsleepDriving-------")
-            print("-------------------------------------------")
-            cv.destroyAllWindows()
-            camera.release()
-            break
-
-        if keyboard.is_pressed('q') or keyboard.is_pressed('Q') :
-            print("-------------------------------------------")
-            print("-------close AI_FallingAsleepDriving-------")
-            print("-------------------------------------------")
-            cv.destroyAllWindows()
-            camera.release()
-            break
-
-        if keyboard.is_pressed('s') or keyboard.is_pressed('S') :
-            print("-------------------------------------------")
-            print("-------start AI_FallingAsleepDriving-------")
-            print("-------------------------------------------")
-            break
-
 # FACE detection function 
 def detectFACE(img, landmarks, FACE):
     # FACE coordinates
@@ -161,24 +129,6 @@ def detectFACE(img, landmarks, FACE):
     cv.rectangle(img, (FACE_x_min, FACE_y_min), (FACE_x_max, FACE_y_max), utils.GREEN, 2)
 
 def detecteye(img, landmarks, right_indices, left_indices):
-    # Right eye
-    # Horizontal line 
-    rh_right = landmarks[right_indices[0]]
-    rh_left = landmarks[right_indices[8]]
-    # Vertical line 
-    rv_top = landmarks[right_indices[12]]
-    rv_bottom = landmarks[right_indices[4]]
-
-    # Left eye 
-    # Horizontal line 
-    lh_right = landmarks[left_indices[0]]
-    lh_left = landmarks[left_indices[8]]
-    # Vertical line 
-    lv_top = landmarks[left_indices[12]]
-    lv_bottom = landmarks[left_indices[4]]
-
-    # Draw lines on eyes 
-    # Right eye
     eye_right_x_min = min([landmarks[idx][0] for idx in RIGHT_EYE])
     eye_right_x_max = max([landmarks[idx][0] for idx in RIGHT_EYE])
     eye_right_y_min = min([landmarks[idx][1] for idx in RIGHT_EYE])

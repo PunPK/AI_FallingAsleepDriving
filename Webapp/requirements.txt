@@ -1,12 +1,11 @@
 fastbook
-progressbar2
-tqdm
-streamlit
-Shapely
-streamlit
 opencv-python
 mediapipe
 dlib
 imutils
 numpy
 gradio
+ffmpeg
+pathlib
+utils
+math
