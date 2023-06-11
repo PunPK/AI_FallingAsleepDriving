@@ -7,5 +7,3 @@ numpy
 gradio
 ffmpeg
 pathlib
-utils
-math
