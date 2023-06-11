@@ -195,13 +195,33 @@ def apply_media_pipe_detection_video(video):
  
         if results.multi_face_landmarks:
             mesh_coords = landmarksDetection(frame, results, False)
-            re_right,re_left = detecteye(frame, mesh_coords, RIGHT_EYE, LEFT_EYE)
-            re_yawn = detectYawn(frame, mesh_coords,mouth)
-            frame = utils.textWithBackground(frame, f'Yawn : {re_yawn}', FONTS, 0.5, (30, 200), bgOpacity=0.45, textThickness=1)
-            frame = utils.textWithBackground(frame, f'Eye right : {re_right}', FONTS, 0.5, (30, 100), bgOpacity=0.45, textThickness=1)
-            frame = utils.textWithBackground(frame, f'Eye left  : {re_left}', FONTS, 0.5, (30, 150), bgOpacity=0.45, textThickness=1)
+            #re_right,re_left = detecteye(frame, mesh_coords, RIGHT_EYE, LEFT_EYE)
+            #re_yawn = detectYawn(frame, mesh_coords,mouth)
+            #frame = utils.textWithBackground(frame, f'Yawn : {re_yawn}', FONTS, 0.5, (30, 200), bgOpacity=0.45, textThickness=1)
+            #frame = utils.textWithBackground(frame, f'Eye right : {re_right}', FONTS, 0.5, (30, 100), bgOpacity=0.45, textThickness=1)
+            #frame = utils.textWithBackground(frame, f'Eye left  : {re_left}', FONTS, 0.5, (30, 150), bgOpacity=0.45, textThickness=1)
 
         return frame
+
+def process_video(video):
+    with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidence=0.5) as face_detection:
+        for frame in video:
+            # Resize frame
+            frame = cv.resize(frame, None, fx=1.5, fy=1.5, interpolation=cv.INTER_CUBIC)
+            frame_height, frame_width = frame.shape[:2]
+            rgb_frame = cv.cvtColor(frame, cv.COLOR_RGB2BGR)
+            results = face_detection.process(rgb_frame)
+
+            if not results.multi_face_landmarks:
+                yield frame
+            else:
+                mesh_coords = landmarksDetection(frame, results, False)
+                re_right, re_left = detecteye(frame, mesh_coords, RIGHT_EYE, LEFT_EYE)
+                re_yawn = detectYawn(frame, mesh_coords, mouth)
+                frame = utils.textWithBackground(frame, f'Yawn : {re_yawn}', FONTS, 0.5, (30, 200), bgOpacity=0.45, textThickness=1)
+                frame = utils.textWithBackground(frame, f'Eye right : {re_right}', FONTS, 0.5, (30, 100), bgOpacity=0.45, textThickness=1)
+                frame = utils.textWithBackground(frame, f'Eye left  : {re_left}', FONTS, 0.5, (30, 150), bgOpacity=0.45, textThickness=1)
+                yield frame
 
 class FaceProcessing(object):
     def __init__(self, ui_obj):
@@ -212,8 +232,9 @@ class FaceProcessing(object):
     def take_webcam_photo(self, image):
         return image
 
-    def take_webcam_video(self, images):
-        return images
+    def take_webcam_video(self, video_frame):
+        video_out2 = process_video(video_frame)
+        return video_out2
 
     def mp_webcam_photo(self, image):
         return image
@@ -259,7 +280,26 @@ class FaceProcessing(object):
                         )
                     with gr.Row():
                         gr.Text("Please use it in a well lit place. Because the model may guess wrong.")
-            
+                
+                with gr.TabItem("Eye/Yawn detection on Video"):
+                    with gr.Row():
+                        webcam_video_in = gr.Video(label="Webcam Video Input", source="webcam")
+                    with gr.Row():
+                        webcam_video_action = gr.Button("Take the Video")
+                        gr.Text("Please use it in a well lit place. Because the model may guess wrong.")
+                    with gr.Row():
+                        webcam_video_out = gr.Video(label="Webcam Video")
+                        
+            webcam_video_action.click(
+                self.take_webcam_video,
+                [
+                    webcam_video_in
+                ],
+                [
+                    webcam_video_out
+                ]
+            )
+
             mp_photo_action.click(
                 self.mp_webcam_photo,
                 [
