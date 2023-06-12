@@ -33,6 +33,25 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 map_face_mesh = mp.solutions.face_mesh
 FONTS = cv.FONT_HERSHEY_COMPLEX
+blink_right_counter = 0 
+blink_left_counter = 0  
+blink_right_counter_n = 0 
+blink_left_counter_n = 0 
+yawn_counter = 0        
+blink_right = 0         
+blink_left = 0          
+re_yawn_counter = 0     
+re_yawn_counter_n = 0  
+close_eye_right = 0
+close_eye_right_counter = 0
+close_eye_left = 0
+close_eye_left_counter = 0
+no_blink_right = 0
+no_blink_left = 0
+blink_30_right = 0
+blink_30_left = 0
+yawn_30 = 0
+danger = '0 : Alert' 
 
 def euclaideanDistance(point, point1):
     x, y = point
@@ -49,27 +68,6 @@ def landmarksDetection(img, results, draw=False):
 
     # Returning the list of tuples for each landmark 
     return mesh_coord
-
-def detectFACE(img, landmarks, FACE):
-    # FACE coordinates
-    FACE_points = [landmarks[idx] for idx in FACE]
-
-    # Find the minimum and maximum x and y coordinates of the FACE points
-    x_values = [point[0] for point in FACE_points]
-    y_values = [point[1] for point in FACE_points]
-    FACE_x_min = min(x_values)
-    FACE_x_max = max(x_values)
-    FACE_y_min = min(y_values)
-    FACE_y_max = max(y_values)
-
-    # Increase width and height of the rectangle
-    width_increase = 25
-    height_increase = 15
-    FACE_x_min -= width_increase
-    FACE_x_max += width_increase
-    FACE_y_min -= height_increase
-    FACE_y_max += height_increase
-    cv.rectangle(img, (FACE_x_min, FACE_y_min), (FACE_x_max, FACE_y_max), (255, 0, 0))
 
 def detecteye(img, landmarks, right_indices, left_indices):
     eye_right_x_min = min([landmarks[idx][0] for idx in RIGHT_EYE])
@@ -181,7 +179,10 @@ def apply_media_pipe_detection_image(image):
 
         return frame
     
-def apply_media_pipe_detection_video(video):
+def apply_media_pipe_detection_video(video,blink_right_counter,blink_left_counter,blink_right_counter_n,blink_left_counter_n,
+                                                        yawn_counter,blink_right,blink_left,re_yawn_counter,re_yawn_counter_n,close_eye_right,
+                                                        close_eye_right_counter,close_eye_left,close_eye_left_counter,no_blink_right,no_blink_left,
+                                                        blink_30_right,blink_30_left,yawn_30):
     with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidence=0.5) as face_detection:
         # Resize frame
         frame = cv.resize(video, None, fx=1.5, fy=1.5, interpolation=cv.INTER_CUBIC)
@@ -195,11 +196,76 @@ def apply_media_pipe_detection_video(video):
  
         if results.multi_face_landmarks:
             mesh_coords = landmarksDetection(frame, results, False)
-            #re_right,re_left = detecteye(frame, mesh_coords, RIGHT_EYE, LEFT_EYE)
-            #re_yawn = detectYawn(frame, mesh_coords,mouth)
-            #frame = utils.textWithBackground(frame, f'Yawn : {re_yawn}', FONTS, 0.5, (30, 200), bgOpacity=0.45, textThickness=1)
-            #frame = utils.textWithBackground(frame, f'Eye right : {re_right}', FONTS, 0.5, (30, 100), bgOpacity=0.45, textThickness=1)
-            #frame = utils.textWithBackground(frame, f'Eye left  : {re_left}', FONTS, 0.5, (30, 150), bgOpacity=0.45, textThickness=1)
+            re_right,re_left = detecteye(frame, mesh_coords, RIGHT_EYE, LEFT_EYE)
+            re_yawn = detectYawn(frame, mesh_coords,mouth)
+
+            frame = utils.textWithBackground(frame, f'Eye right : {re_right}', FONTS, 1.0, (30, 100), bgOpacity=0.9, textThickness=2)
+            frame = utils.textWithBackground(frame, f'Eye left  : {re_left}', FONTS, 1.0, (30, 150), bgOpacity=0.9, textThickness=2)
+            frame = utils.textWithBackground(frame, f'Yawn : {re_yawn}', FONTS, 1.0, (30, 200), bgOpacity=0.9, textThickness=2)
+
+            if re_right == 'close eye' :
+                close_eye_right += 1
+                blink_right += 1
+            if re_left == 'close eye':
+                close_eye_left += 1
+                blink_left += 1
+
+            if close_eye_right >= 1 :
+                if re_right == 'open eye' :
+                    close_eye_right = 0 
+                elif close_eye_right >= 5 :
+                    close_eye_right_counter += 1
+                    close_eye_right = 0 
+
+            if close_eye_left >= 1 :
+                if re_left == 'open eye' :
+                    close_eye_left = 0 
+                elif close_eye_left >= 5 :
+                    close_eye_left_counter += 1
+                    close_eye_left = 0 
+
+            if blink_right >= 2 :
+                blink_right_counter += 1
+                blink_right_counter_n += 1
+                blink_right = 0
+            if blink_left >= 2 :
+                blink_left_counter += 1
+                blink_left = 0
+
+            # Count yawns
+            if re_yawn == 'yawn':
+                yawn_counter += 1
+            
+            if yawn_counter >= 10 :
+                re_yawn_counter += 1
+                re_yawn_counter_n += 1
+                yawn_counter = 0
+
+            if re_yawn_counter == 6 or close_eye_right_counter >= 2 or close_eye_left_counter >= 2 or no_blink_right >= 4 or no_blink_left >= 4 or blink_30_left >= 4 or blink_30_right >= 4 or yawn_30 >= 4:
+                danger = '5 : Extremely Sleepy, fighting sleep'
+                frame = utils.textWithBackground(frame, f"You must park your car for a break.", FONTS, 1, (200, 300), bgOpacity=0.9, textThickness=2)
+            elif re_yawn_counter == 5 or close_eye_right_counter == 1 or close_eye_left_counter == 1 or no_blink_right == 3 or no_blink_left == 3 or blink_30_left == 3 or blink_30_right == 3 or yawn_30 == 3:
+                danger = '4 : Sleepy, some effort to keep alert'
+            elif re_yawn_counter == 4 or no_blink_right == 2 or no_blink_left == 2 or blink_30_left >= 2 or blink_30_right == 2 or yawn_30 == 2:
+                danger = '3 : Sleepy, but no difficulty remaining awake'
+            elif re_yawn_counter == 3 or no_blink_left == 1 or no_blink_left == 1 or blink_30_left == 1 or blink_30_right == 1 or yawn_30 == 1:
+                danger = '2 : Some signs of sleepiness'
+            elif re_yawn_counter == 2 :
+                danger = '1 : Rather Alert'
+                
+            frame = utils.textWithBackground(frame, f'Degree of danger :: {danger}', FONTS, 0.5, (500, 50), bgOpacity=0.45, textThickness=1)
+            frame = utils.textWithBackground(frame, f'Sum blink Eye right    : {blink_right_counter}', FONTS, 0.5, (650, 95), bgOpacity=0.45, textThickness=1)
+            frame = utils.textWithBackground(frame, f'Sum blink Eye left     : {blink_left_counter}', FONTS, 0.5, (650, 140), bgOpacity=0.45, textThickness=1)
+            frame = utils.textWithBackground(frame, f'Sum close Eye right    : {close_eye_right_counter}', FONTS, 0.5, (650, 185), bgOpacity=0.45, textThickness=1)
+            frame = utils.textWithBackground(frame, f'Sum close Eye left     : {close_eye_left_counter}', FONTS, 0.5, (650, 230), bgOpacity=0.45, textThickness=1)
+            #frame = utils.textWithBackground(frame, f'Sum no blink Eye right : {no_blink_right}', FONTS, 0.5, (650, 275), bgOpacity=0.45, textThickness=1)
+            #frame = utils.textWithBackground(frame, f'Sum no blink Eye left  : {no_blink_left}', FONTS, 0.5, (650, 320), bgOpacity=0.45, textThickness=1)
+            frame = utils.textWithBackground(frame, f'Sum no blink Eye right : 0', FONTS, 0.5, (650, 275), bgOpacity=0.45, textThickness=1)
+            frame = utils.textWithBackground(frame, f'Sum no blink Eye left  : 0', FONTS, 0.5, (650, 320), bgOpacity=0.45, textThickness=1)
+            frame = utils.textWithBackground(frame, f'Sum 30 blink Eye right : {blink_30_right}', FONTS, 0.5, (650, 365), bgOpacity=0.45, textThickness=1)
+            frame = utils.textWithBackground(frame, f'Sum 30 blink Eye left  : {blink_30_left}', FONTS, 0.5, (650, 410), bgOpacity=0.45, textThickness=1)
+            frame = utils.textWithBackground(frame, f'Sum Yawn               : {re_yawn_counter}', FONTS, 0.5, (650, 455), bgOpacity=0.45, textThickness=1)
+            frame = utils.textWithBackground(frame, f'Sum 30 Yawn            : {yawn_30}', FONTS, 0.5, (650, 500), bgOpacity=0.45, textThickness=1)
 
         return frame
 
@@ -247,8 +313,14 @@ class FaceProcessing(object):
         detection_video = apply_media_pipe_detection_video(video)
         return detection_video
     
-    def webcam_stream_update(self, video_frame):
-        video_out = apply_media_pipe_detection_video(video_frame)
+    def webcam_stream_update(self, video_frame,blink_right_counter,blink_left_counter,blink_right_counter_n,blink_left_counter_n,
+                                    yawn_counter,blink_right,blink_left,re_yawn_counter,re_yawn_counter_n,close_eye_right,
+                                    close_eye_right_counter,close_eye_left,close_eye_left_counter,no_blink_right,no_blink_left,
+                                    blink_30_right,blink_30_left,yawn_30) :
+        video_out = apply_media_pipe_detection_video(video_frame,blink_right_counter,blink_left_counter,blink_right_counter_n,blink_left_counter_n,
+                                                        yawn_counter,blink_right,blink_left,re_yawn_counter,re_yawn_counter_n,close_eye_right,
+                                                        close_eye_right_counter,close_eye_left,close_eye_left_counter,no_blink_right,no_blink_left,
+                                                        blink_30_right,blink_30_left,yawn_30)
         return video_out
     
     def create_ui(self):
@@ -280,25 +352,6 @@ class FaceProcessing(object):
                         )
                     with gr.Row():
                         gr.Text("Please use it in a well lit place. Because the model may guess wrong.")
-                
-                with gr.TabItem("Eye/Yawn detection on Video"):
-                    with gr.Row():
-                        webcam_video_in = gr.Video(label="Webcam Video Input", source="webcam")
-                    with gr.Row():
-                        webcam_video_action = gr.Button("Take the Video")
-                        gr.Text("Please use it in a well lit place. Because the model may guess wrong.")
-                    with gr.Row():
-                        webcam_video_out = gr.Video(label="Webcam Video")
-                        
-            webcam_video_action.click(
-                self.take_webcam_video,
-                [
-                    webcam_video_in
-                ],
-                [
-                    webcam_video_out
-                ]
-            )
 
             mp_photo_action.click(
                 self.mp_webcam_photo,
