@@ -386,16 +386,15 @@ with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidenc
                 yawn_time = time.time() - start_yawn_time - yawn_time
                 re_yawn_counter_n = 0
 
-            if re_yawn_counter == 6 or close_eye_right_counter >= 2 or close_eye_left_counter >= 2 or no_blink_right >= 4 or no_blink_left >= 4 or blink_30_left >= 4 or blink_30_right >= 4 or yawn_30 >= 4:
-                danger = '5 : Extremely Sleepy, fighting sleep'
+            if re_yawn_counter >= 12 or close_eye_right_counter >= 2 or close_eye_left_counter >= 2 or no_blink_right >= 3 or no_blink_left >= 3 or blink_30_left >= 3 or blink_30_right >= 3 or yawn_30 >= 3 :
+                danger = '4 : Extremely Sleepy, fighting sleep'
+                stream.write("test-Video.mp4")
                 frame = utils.textWithBackground(frame, f"You must park your car for a break.", FONTS, 1, (200, 300), bgOpacity=0.9, textThickness=2)
-            elif re_yawn_counter == 5 or close_eye_right_counter == 1 or close_eye_left_counter == 1 or no_blink_right == 3 or no_blink_left == 3 or blink_30_left == 3 or blink_30_right == 3 or yawn_30 == 3:
-                danger = '4 : Sleepy, some effort to keep alert'
-            elif re_yawn_counter == 4 or no_blink_right == 2 or no_blink_left == 2 or blink_30_left >= 2 or blink_30_right == 2 or yawn_30 == 2:
+            elif 11 >= re_yawn_counter >= 6 or no_blink_right == 2 or no_blink_left == 2 or blink_30_left >= 2 or blink_30_right == 2 or yawn_30 == 2:
                 danger = '3 : Sleepy, but no difficulty remaining awake'
-            elif re_yawn_counter == 3 or no_blink_left == 1 or no_blink_left == 1 or blink_30_left == 1 or blink_30_right == 1 or yawn_30 == 1:
+            elif 5 >= re_yawn_counter >= 3 or no_blink_left == 1 or no_blink_left == 1 or blink_30_left == 1 or blink_30_right == 1 or yawn_30 == 1:
                 danger = '2 : Some signs of sleepiness'
-            elif re_yawn_counter == 2 :
+            elif 2 >= re_yawn_counter >= 1:
                 danger = '1 : Rather Alert'
                 
             frame = utils.textWithBackground(frame, f'Degree of danger :: {danger}', FONTS, 0.5, (500, 50), bgOpacity=0.45, textThickness=1)
