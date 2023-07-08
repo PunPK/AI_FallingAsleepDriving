@@ -421,11 +421,11 @@ with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidenc
                     close_eye_left_counter += 1
                     close_eye_left = 0 
 
-            if blink_right >= 2 :
+            if blink_right >= 4 :
                 blink_right_counter += 1
                 blink_right_counter_n += 1
                 blink_right = 0
-            if blink_left >= 2 :
+            if blink_left >= 4 :
                 blink_left_counter += 1
                 blink_left = 0
             
