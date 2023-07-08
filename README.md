@@ -6,6 +6,8 @@
 
 Github : https://github.com/PunPK/AI_FallingAsleepDriving
 
+Supported on Python 3.7 ,3.8,3.9(This Webapp have been tested on Python 3.10)
+
 Medium : https://medium.com/@phurutsakorn.kps/️-ai-fallingasleepdriving-993ce04ccfcc
 
 Huggingface spaces : https://huggingface.co/spaces/PunPk/AI_FallingAsleepDriving
